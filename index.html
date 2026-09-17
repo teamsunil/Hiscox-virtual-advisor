@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hiscox | Virtual Insurance Advisor</title>
+<style>
+:root{
+  --navy:#0a1f3d;
+  --navy-2:#132b52;
+  --red:#c8102e;
+  --cream:#f7f5f0;
+  --paper:#ffffff;
+  --ink:#1c2532;
+  --muted:#5b6472;
+  --border:#e2e6ec;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  background:var(--cream);
+  color:var(--ink);
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  overflow:hidden;
+}
+button{font-family:inherit;cursor:pointer;}
+textarea{font-family:inherit;}
+
+/* ---------- Header ---------- */
+header{
+  background:var(--navy);
+  padding:18px 20px 16px;
+  flex-shrink:0;
+}
+.header-row{
+  max-width:720px;
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.brand{font-size:21px;font-weight:700;color:#fff;letter-spacing:-.01em;}
+.brand em{color:var(--red);font-style:normal;}
+.brand-sub{font-size:13.5px;color:rgba(255,255,255,.65);margin-top:1px;}
+.header-sub{max-width:720px;margin:10px auto 0;font-size:14px;color:rgba(255,255,255,.6);}
+#gear-btn{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);
+  color:#fff;
+  border-radius:999px;
+  padding:7px 14px;
+  font-size:12.5px;
+  font-weight:600;
+}
+#gear-btn:hover{background:rgba(255,255,255,.16);}
+
+/* ---------- Chat area ---------- */
+#chat-scroll{
+  flex:1;
+  overflow-y:auto;
+  padding:24px 20px;
+}
+#chat-scroll::-webkit-scrollbar{width:6px;}
+#chat-scroll::-webkit-scrollbar-thumb{background:rgba(10,31,61,.15);border-radius:999px;}
+#chat-inner{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:16px;}
+
+.msg-row{display:flex;flex-direction:column;gap:4px;animation:fadeIn .25s ease-out;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.msg-row.user{align-items:flex-end;}
+.bubble{
+  max-width:78%;
+  padding:11px 16px;
+  border-radius:16px;
+  font-size:15px;
+  line-height:1.55;
+  white-space:pre-wrap;
+}
+.msg-row.user .bubble{
+  background:var(--navy);
+  color:#fff;
+  border-bottom-right-radius:5px;
+}
+.msg-row.ai-wrap{flex-direction:row;align-items:flex-start;gap:10px;}
+.avatar{
+  flex:none;
+  width:34px;height:34px;
+  border-radius:50%;
+  background:var(--navy);
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;
+  margin-top:2px;
+}
+.ai-col{display:flex;flex-direction:column;gap:4px;align-items:flex-start;}
+.msg-row.ai-wrap .bubble{
+  background:var(--paper);
+  border:1px solid var(--border);
+  border-bottom-left-radius:5px;
+}
+.timestamp{font-size:11.5px;color:var(--muted);padding:0 4px;}
+
+.typing{
+  display:flex;align-items:center;gap:5px;
+  background:var(--paper);border:1px solid var(--border);
+  padding:13px 16px;border-radius:16px;border-bottom-left-radius:5px;
+  width:fit-content;
+}
+.typing .dot{width:6px;height:6px;border-radius:50%;background:rgba(10,31,61,.4);animation:bounce 1.2s infinite ease-in-out;}
+.typing .dot:nth-child(2){animation-delay:.15s;}
+.typing .dot:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,80%,100%{transform:scale(.6);opacity:.4;}40%{transform:scale(1);opacity:1;}}
+
+.actions{display:flex;gap:8px;flex-wrap:wrap;padding-left:44px;margin-top:2px;}
+.action-chip{
+  background:var(--paper);
+  border:1px solid var(--border);
+  color:var(--navy);
+  border-radius:999px;
+  padding:8px 15px;
+  font-size:13.5px;
+  font-weight:600;
+  transition:all .15s;
+}
+.action-chip:hover{border-color:var(--red);color:var(--red);}
+
+.error-text{color:var(--red);font-size:13.5px;padding-left:44px;}
+
+/* ---------- Input bar ---------- */
+#input-bar{
+  border-top:1px solid var(--border);
+  background:rgba(255,255,255,.85);
+  padding:14px 20px;
+  flex-shrink:0;
+}
+#input-inner{max-width:720px;margin:0 auto;display:flex;gap:10px;align-items:flex-end;}
+#msg-input{
+  flex:1;
+  resize:none;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:11px 16px;
+  font-size:15px;
+  max-height:120px;
+  color:var(--ink);
+  background:#fff;
+}
+#msg-input:focus{outline:none;border-color:var(--navy);}
+#send-btn{
+  background:var(--navy);
+  color:#fff;
+  border:none;
+  border-radius:999px;
+  padding:11px 22px;
+  font-size:14.5px;
+  font-weight:600;
+}
+#send-btn:hover:not(:disabled){background:var(--navy-2);}
+#send-btn:disabled{opacity:.4;cursor:not-allowed;}
+#bar-foot{max-width:720px;margin:8px auto 0;display:flex;justify-content:space-between;font-size:12px;color:var(--muted);}
+#clear-btn{background:none;border:none;color:var(--muted);font-weight:600;font-size:12px;}
+#clear-btn:hover{color:var(--red);}
+
+/* ---------- Modals ---------- */
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.42);
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;
+  z-index:50;
+}
+.hidden{display:none !important;}
+.modal{
+  background:#fff;
+  border-radius:16px;
+  padding:24px;
+  max-width:460px;
+  width:100%;
+  max-height:85vh;
+  overflow-y:auto;
+  animation:fadeIn .2s ease-out;
+}
+.modal h2{margin:0 0 8px;font-size:18px;color:var(--navy);}
+.modal p{margin:0;font-size:14px;line-height:1.6;color:var(--muted);}
+.modal .box{
+  background:var(--cream);
+  border-radius:12px;
+  padding:14px 16px;
+  margin-top:14px;
+  font-size:13.5px;
+  color:var(--ink);
+}
+.modal .box ul{margin:8px 0 0;padding-left:18px;}
+.modal .box li{margin-bottom:4px;}
+.modal .close-btn{
+  margin-top:18px;
+  width:100%;
+  background:var(--navy);
+  color:#fff;
+  border:none;
+  border-radius:999px;
+  padding:11px;
+  font-size:14px;
+  font-weight:600;
+}
+.modal label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-top:14px;margin-bottom:6px;}
+.modal input[type=password], .modal input[type=text]{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:14px;
+}
+.summary-field{margin-bottom:10px;}
+.summary-field .label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);}
+.summary-field ul{margin:3px 0 0;padding-left:16px;font-size:13.5px;}
+.summary-field p{margin:3px 0 0;font-size:13.5px;color:var(--ink);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-row">
+    <div>
+      <div class="brand">Hiscox<em>.</em></div>
+      <div class="brand-sub">Virtual Insurance Advisor</div>
+    </div>
+    <button id="gear-btn" type="button">API key</button>
+  </div>
+  <p class="header-sub">Let's talk about your insurance needs.</p>
+</header>
+
+<div id="chat-scroll"><div id="chat-inner"></div></div>
+
+<div id="input-bar">
+  <form id="input-inner">
+    <textarea id="msg-input" rows="1" placeholder="Type anything — tell me about your situation..."></textarea>
+    <button id="send-btn" type="submit">Send</button>
+  </form>
+  <div id="bar-foot">
+    <span>General guidance only — not a quote or binding advice.</span>
+    <button id="clear-btn" type="button">Clear conversation</button>
+  </div>
+</div>
+
+<!-- API key modal -->
+<div id="key-overlay" class="overlay hidden">
+  <div class="modal">
+    <h2>Anthropic API key</h2>
+    <p>This demo calls the Claude API directly from your browser, so it needs your own API key. It is stored only in this browser's local storage — never sent anywhere except directly to Anthropic, and never bundled into this file.</p>
+    <label for="key-input">API key</label>
+    <input id="key-input" type="password" placeholder="sk-ant-...">
+    <button id="key-save-btn" class="close-btn" type="button">Save & close</button>
+  </div>
+</div>
+
+<!-- Quote modal -->
+<div id="quote-overlay" class="overlay hidden">
+  <div class="modal">
+    <h2>Get a Quote</h2>
+    <p>This is a mock handoff screen for the POC. In a live product, this would carry the context from your conversation into Hiscox's quote flow, so you wouldn't need to repeat anything you've already shared.</p>
+    <div class="box">
+      <strong>What happens next (in a real flow):</strong>
+      <ul>
+        <li>Confirm a few structured details Hiscox needs for underwriting</li>
+        <li>Receive an actual price and coverage terms — not estimates from this chat</li>
+        <li>Review and purchase, or continue with a specialist</li>
+      </ul>
+    </div>
+    <button class="close-btn modal-close" type="button">Close</button>
+  </div>
+</div>
+
+<!-- Specialist modal -->
+<div id="specialist-overlay" class="overlay hidden">
+  <div class="modal">
+    <h2>Speak to a Hiscox Specialist</h2>
+    <p>Here's a summary of your conversation so far — a specialist would see this before speaking with you, so you won't need to repeat yourself.</p>
+    <div id="specialist-body" class="box">Preparing summary…</div>
+    <p style="margin-top:12px;font-size:12px;">In a live product, this would connect you to a live Hiscox specialist or booking flow.</p>
+    <button class="close-btn modal-close" type="button">Close</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// Mock Hiscox knowledge base (illustrative content only — not
+// real policy wording, prices, limits, or eligibility rules).
+// ============================================================
+const KNOWLEDGE_BASE = [
+  { id: "business-overview", title: "Small Business Insurance — Overview", keywords: ["small business","startup","business owner","company","sole trader","freelancer"],
+    content: "Hiscox works with small and growing businesses across many sectors — from consultants and creatives to technology and professional services firms. Cover is generally built around the specific risks a business faces: what it does, who its clients are, whether it handles client data or money, whether it has physical premises or equipment, and how many people it employs. Common areas explored with small business owners include professional liability, cyber, and property/equipment cover." },
+  { id: "professional-indemnity", title: "Professional Liability / Professional Indemnity", keywords: ["professional indemnity","professional liability","pi insurance","negligence","advice","client dispute","sued","lawsuit","mistake","errors and omissions","e&o","breach of contract"],
+    content: "Professional indemnity (also called professional liability) insurance is relevant for businesses that give advice, designs, or professional services to clients — for example consultants, agencies, software developers, architects, or financial advisors. It generally relates to claims arising from alleged mistakes, negligence, or failure to deliver a service as promised, including the cost of defending a claim even if it's later found to be unfounded." },
+  { id: "cyber", title: "Cyber Insurance", keywords: ["cyber","data breach","hack","hacked","ransomware","data protection","gdpr","customer data","sensitive data","it systems","online","saas","software company","phishing"],
+    content: "Cyber insurance is generally relevant for businesses that store or process customer data, rely on IT systems or online platforms to operate, or could be disrupted by an attack such as ransomware or a data breach. It typically relates to costs businesses may face responding to a cyber incident — investigating a breach, notifying affected customers, dealing with business interruption — as well as liability arising from a breach of customer or third-party data." },
+  { id: "commercial-property", title: "Commercial Property & Equipment", keywords: ["office","premises","equipment","stock","shop","warehouse","property damage","fire","flood","business contents","physical assets"],
+    content: "Commercial property cover generally relates to a business's physical premises, contents, stock, or equipment — for example protection against damage from events like fire, flood, or theft, and cover for business equipment used on or off-site. This is typically relevant to businesses with a physical location, retail or storage space, or valuable equipment." },
+  { id: "media-entertainment", title: "Media & Entertainment", keywords: ["media","entertainment","production","film","content creator","publishing","broadcast","influencer"],
+    content: "Hiscox has experience working with media, entertainment, and content production businesses, where risks can include intellectual property disputes, defamation/media liability, and equipment used on productions. This is a specialist area best explored with a Hiscox specialist familiar with media risk." },
+  { id: "events", title: "Events Insurance", keywords: ["event","conference","wedding","exhibition","festival","cancellation","public liability event"],
+    content: "Event-related cover generally relates to risks around organizing or hosting events — such as cancellation, public liability for attendees, or damage to a venue. Typically relevant for event organizers, venues, or businesses hosting one-off or recurring public events." },
+  { id: "management-liability", title: "Executive / Management Risks", keywords: ["director","officer","management liability","d&o","board","executive","employment dispute","regulatory investigation","company director"],
+    content: "Executive and management risk cover generally relates to claims made against a company's directors, officers, or the business itself in connection with management decisions — for example employment-related disputes or regulatory investigations. This tends to become more relevant as a business grows, takes on employees, or has a formal board/leadership structure." },
+  { id: "personal-overview", title: "Personal & Specialist Insurance — Overview", keywords: ["personal insurance","individual","family","high net worth","private client"],
+    content: "Alongside business cover, Hiscox also works with individuals on personal and specialist insurance — including home, valuable possessions, fine art and collections, classic cars, and private client cover for those with more complex personal asset needs." },
+  { id: "home", title: "Home Insurance", keywords: ["home insurance","house","flat","apartment","buildings","contents","home cover","my home"],
+    content: "Home insurance generally relates to cover for a person's property (buildings) and belongings (contents) against risks like fire, flood, theft, or accidental damage. Considerations include whether the person owns or rents, the value of property and contents, and whether they hold higher-value items needing separate specialist cover." },
+  { id: "fine-art", title: "Fine Art and Collections", keywords: ["artwork","art collection","fine art","painting","sculpture","collectible","jewelry","jewellery","wine collection"],
+    content: "Fine art and collections cover is generally relevant for people who own valuable individual items or collections — such as art, jewelry, or other collectibles — that may exceed what a standard home policy would cover, or that need specialist valuation and handling." },
+  { id: "private-client", title: "Private Client", keywords: ["private client","high net worth","multiple properties","complex personal assets"],
+    content: "Private client cover is generally aimed at people with more complex personal circumstances — for example multiple properties, valuable possessions, or a lifestyle a standard personal policy may not fully address." },
+  { id: "classic-car", title: "Classic Car Insurance", keywords: ["classic car","vintage car","collector car","car insurance","motor insurance","vehicle"],
+    content: "Classic car cover generally relates to older, collectible, or specialist vehicles where value, usage patterns, and storage conditions differ from an everyday car." },
+  { id: "travel", title: "Travel Insurance", keywords: ["travel insurance","trip","holiday","vacation","travelling","traveling"],
+    content: "Travel insurance generally relates to cover for trips — medical emergencies abroad, trip cancellation, or lost belongings while travelling. Specifics depend on destination, trip length, and any valuable items being taken along." },
+  { id: "general-disclaimer", title: "General Guidance & Escalation", keywords: ["price","cost","quote","how much","premium","eligibility","guarantee","coverage limit"],
+    content: "Specific prices, policy wording, coverage limits, and eligibility are determined by Hiscox underwriting and cannot be generated in a general advisory conversation. Coverage discussion should be framed as general guidance, not a quote or guarantee. For pricing, binding terms, or eligibility, the next step is a formal quote process or a conversation with a Hiscox specialist." },
+];
+
+function retrieveRelevantDocs(query, topK) {
+  topK = topK || 4;
+  const q = query.toLowerCase();
+  const scored = KNOWLEDGE_BASE.map(doc => {
+    let score = 0;
+    doc.keywords.forEach(kw => { if (q.includes(kw.toLowerCase())) score += kw.split(" ").length; });
+    return { doc, score };
+  });
+  const matched = scored.filter(s => s.score > 0).sort((a, b) => b.score - a.score);
+  if (matched.length === 0) {
+    return [KNOWLEDGE_BASE.find(d => d.id === "business-overview"), KNOWLEDGE_BASE.find(d => d.id === "personal-overview")];
+  }
+  return matched.slice(0, topK).map(s => s.doc);
+}
+
+function buildSystemPrompt(retrievedDocs) {
+  const knowledgeBlock = retrievedDocs.map(d => "### " + d.title + "\n" + d.content).join("\n\n");
+  return `You are the Hiscox Virtual Insurance Advisor — an experienced, warm, professional insurance advisor having a real, free-flowing conversation. You work for Hiscox, an international specialist insurer covering both business and personal/specialist insurance.
+
+## How you must behave
+
+- This is a 100% open-ended conversation. There is NO fixed script, NO predefined question sequence, and NO questionnaire. You decide, turn by turn, what is most useful to say or ask next based on everything the user has told you so far.
+- Never ask for information that isn't relevant to what the user is telling you. Never ask something you already know from earlier in the conversation.
+- If the user gives you several pieces of information in one message, acknowledge and use all of them — don't just latch onto one and ignore the rest.
+- Keep responses conversational and concise (roughly 2-5 sentences at a time), like a real advisor speaking naturally — not a wall of text, not a bulleted interrogation.
+- Move fluidly between modes as the conversation calls for it: understanding their situation, asking a natural clarifying question, briefly educating them on a concept, gently surfacing relevant risks, offering a soft non-binding recommendation, or pointing them to a next step. You decide when to shift between these — never follow a fixed order.
+- If the user changes subject or says "actually, forget that" / "instead" / similar, drop the previous thread immediately and follow the new direction naturally, without confusion or repeating yourself.
+- If the user asks a direct factual question ("what does cyber insurance cover?", "can you explain X?"), answer it plainly using the knowledge below rather than deflecting with another question.
+- If the user says they want to speak to a person, or their situation is complex/unclear enough that you don't have enough reliable information, say so naturally (e.g. "I think this would be better discussed with a Hiscox specialist — I can help put together a quick summary of what we've covered before you connect.") and use the speak_specialist action.
+
+## Strict safety rules
+
+- Never invent, imply, or state specific policy terms, coverage limits, exclusions, eligibility rules, or prices. You do not have access to real underwriting data.
+- Never say a user "needs" or "must have" a policy, and never guarantee coverage or acceptance. Use soft, exploratory language such as "this may be an area worth exploring" or "this could be relevant based on what you've shared."
+- If asked for a price, quote, or firm coverage confirmation, clearly explain that pricing and binding terms come from an actual quote/underwriting process, not this conversation, and offer to help them move toward that (get_quote action) or talk to a specialist.
+- Only use the knowledge base content below for product/coverage information. If something is outside it, say plainly that you don't have enough information on that specific point and suggest confirming with Hiscox or a specialist — do not guess or fabricate.
+
+## Knowledge base (retrieved for this turn — ground your product/coverage statements in this, don't invent beyond it)
+
+${knowledgeBlock}
+
+## Action tag protocol (critical — read carefully)
+
+When, and ONLY when, it is contextually appropriate, end your reply with exactly one extra line in this exact format, with no other text on that line:
+<<ACTIONS: action_id, action_id>>
+
+Valid action_id values:
+- explore_coverage — offer this when the user has shared enough for a specific coverage area to be worth exploring in more depth.
+- get_quote — offer this when the user seems ready to move toward getting an actual quote.
+- speak_specialist — offer this when the user asks for a human, the topic is complex/uncertain, or you're recommending escalation.
+
+Rules for this tag:
+- Include only action ids that are genuinely relevant right now. Most turns should include NONE of them — omit the line entirely in that case.
+- Never include this line just to "always show options." It must reflect a genuine judgment call for this specific turn.
+- Never mention the tag itself, its syntax, or that you are choosing actions — it is a silent signal to the interface, not something to reference in your natural language reply.
+- The tag line must be the very last line of your response if present, and must follow the exact format shown, with no markdown formatting around it.
+
+Begin the conversation naturally and stay fully in character as the Hiscox Virtual Insurance Advisor.`;
+}
+
+// ============================================================
+// State
+// ============================================================
+const MODEL = "claude-sonnet-4-5-20250929";
+const ACTION_LABELS = { explore_coverage: "Explore Coverage", get_quote: "Get a Quote", speak_specialist: "Speak to a Hiscox Specialist" };
+let messages = [];
+let isStreaming = false;
+
+function newId() { return Date.now() + "-" + Math.random().toString(36).slice(2, 9); }
+function getApiKey() { return localStorage.getItem("hiscox_poc_api_key") || ""; }
+function setApiKey(key) { localStorage.setItem("hiscox_poc_api_key", key); }
+function formatTime(ts) { return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); }
+
+const chatInner = document.getElementById("chat-inner");
+const chatScroll = document.getElementById("chat-scroll");
+
+function scrollToBottom() { chatScroll.scrollTo({ top: chatScroll.scrollHeight, behavior: "smooth" }); }
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function renderAll() {
+  chatInner.innerHTML = "";
+  messages.forEach(m => appendMessageEl(m));
+  scrollToBottom();
+}
+
+function appendMessageEl(m) {
+  const row = document.createElement("div");
+  row.className = "msg-row " + (m.role === "user" ? "user" : "ai-wrap");
+
+  if (m.role === "user") {
+    row.innerHTML = `
+      <div class="bubble">${escapeHtml(m.content)}</div>
+      <div class="timestamp">${formatTime(m.timestamp)}</div>`;
+    chatInner.appendChild(row);
+  } else {
+    row.innerHTML = `
+      <div class="avatar">H</div>
+      <div class="ai-col">
+        <div class="bubble">${escapeHtml(m.content)}</div>
+        <div class="timestamp">${formatTime(m.timestamp)}</div>
+      </div>`;
+    chatInner.appendChild(row);
+
+    if (m.actions && m.actions.length) {
+      const actionsEl = document.createElement("div");
+      actionsEl.className = "actions";
+      m.actions.forEach(a => {
+        const btn = document.createElement("button");
+        btn.className = "action-chip";
+        btn.type = "button";
+        btn.textContent = ACTION_LABELS[a];
+        btn.onclick = () => handleAction(a);
+        actionsEl.appendChild(btn);
+      });
+      chatInner.appendChild(actionsEl);
+    }
+  }
+}
+
+function setTyping(on) {
+  const existing = document.getElementById("typing-row");
+  if (existing) existing.remove();
+  if (on) {
+    const row = document.createElement("div");
+    row.id = "typing-row";
+    row.className = "msg-row ai-wrap";
+    row.innerHTML = `<div class="avatar">H</div><div class="typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+    chatInner.appendChild(row);
+    scrollToBottom();
+  }
+}
+
+function upsertStreamingBubble(text) {
+  let row = document.getElementById("streaming-row");
+  if (!row) {
+    const typingRow = document.getElementById("typing-row");
+    if (typingRow) typingRow.remove();
+    row = document.createElement("div");
+    row.id = "streaming-row";
+    row.className = "msg-row ai-wrap";
+    row.innerHTML = `<div class="avatar">H</div><div class="ai-col"><div class="bubble" id="streaming-bubble"></div></div>`;
+    chatInner.appendChild(row);
+  }
+  document.getElementById("streaming-bubble").textContent = text;
+  scrollToBottom();
+}
+
+function removeStreamingBubble() {
+  const row = document.getElementById("streaming-row");
+  if (row) row.remove();
+}
+
+function showError(text) {
+  const el = document.createElement("p");
+  el.className = "error-text";
+  el.textContent = text;
+  chatInner.appendChild(el);
+  scrollToBottom();
+}
+
+// ---- action tag parsing ----
+function extractActions(fullText) {
+  const re = /<<ACTIONS:\s*([a-z_,\s]+)>>\s*$/i;
+  const match = fullText.match(re);
+  if (!match) return { text: fullText.trim(), actions: [] };
+  const valid = ["explore_coverage", "get_quote", "speak_specialist"];
+  const ids = match[1].split(",").map(s => s.trim().toLowerCase()).filter(s => valid.includes(s));
+  return { text: fullText.slice(0, match.index).trim(), actions: ids };
+}
+function stripPartialActionTag(text) {
+  return text.replace(/<<ACT(I(O(N(S(:.*)?)?)?)?)?$/i, "");
+}
+
+// ============================================================
+// Anthropic API calls (direct from browser — POC only)
+// ============================================================
+async function callClaudeStreaming(systemPrompt, msgs, onDelta) {
+  const apiKey = getApiKey();
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true",
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages: msgs.map(m => ({ role: m.role, content: m.content })),
+      stream: true,
+    }),
+  });
+
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error((errBody.error && errBody.error.message) || ("Request failed (" + res.status + ")"));
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("data:")) continue;
+      const jsonStr = trimmed.slice(5).trim();
+      if (!jsonStr) continue;
+      let payload;
+      try { payload = JSON.parse(jsonStr); } catch { continue; }
+      if (payload.type === "content_block_delta" && payload.delta && payload.delta.type === "text_delta") {
+        onDelta(payload.delta.text);
+      }
+      if (payload.type === "error") {
+        throw new Error((payload.error && payload.error.message) || "Streaming error");
+      }
+    }
+  }
+}
+
+async function callClaudeOnce(systemPrompt, userText) {
+  const apiKey = getApiKey();
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true",
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 512,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userText }],
+    }),
+  });
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error((errBody.error && errBody.error.message) || ("Request failed (" + res.status + ")"));
+  }
+  const data = await res.json();
+  const block = (data.content || []).find(b => b.type === "text");
+  return block ? block.text : "";
+}
+
+// ============================================================
+// Conversation flow
+// ============================================================
+async function sendMessage(rawText) {
+  const text = (rawText || "").trim();
+  if (!text || isStreaming) return;
+
+  if (!getApiKey()) {
+    openKeyModal();
+    return;
+  }
+
+  const userMsg = { id: newId(), role: "user", content: text, timestamp: Date.now() };
+  messages.push(userMsg);
+  appendMessageEl(userMsg);
+  document.getElementById("msg-input").value = "";
+  scrollToBottom();
+
+  isStreaming = true;
+  document.getElementById("send-btn").disabled = true;
+  setTyping(true);
+
+  const recentUserText = messages.filter(m => m.role === "user").slice(-4).map(m => m.content).join(" \n ");
+  const retrieved = retrieveRelevantDocs(recentUserText);
+  const systemPrompt = buildSystemPrompt(retrieved);
+
+  let fullText = "";
+  try {
+    await callClaudeStreaming(systemPrompt, messages, (delta) => {
+      fullText += delta;
+      upsertStreamingBubble(stripPartialActionTag(fullText));
+    });
+
+    const { text: cleanText, actions } = extractActions(fullText);
+    removeStreamingBubble();
+    const assistantMsg = { id: newId(), role: "assistant", content: cleanText, timestamp: Date.now(), actions };
+    messages.push(assistantMsg);
+    appendMessageEl(assistantMsg);
+  } catch (err) {
+    setTyping(false);
+    removeStreamingBubble();
+    showError(err.message || "Something went wrong.");
+  } finally {
+    isStreaming = false;
+    document.getElementById("send-btn").disabled = false;
+    scrollToBottom();
+  }
+}
+
+function handleAction(action) {
+  if (action === "get_quote") { document.getElementById("quote-overlay").classList.remove("hidden"); return; }
+  if (action === "speak_specialist") { openSpecialistModal(); return; }
+  if (action === "explore_coverage") { sendMessage("Tell me more about that coverage area."); }
+}
+
+async function openSpecialistModal() {
+  document.getElementById("specialist-overlay").classList.remove("hidden");
+  const body = document.getElementById("specialist-body");
+  body.innerHTML = "Preparing summary…";
+
+  const summarySystemPrompt = `You are preparing a handoff summary of an insurance advisory conversation for a Hiscox specialist to read before speaking with the customer. Based only on what was actually discussed, produce a concise JSON object with these fields:
+
+{
+  "customerRequirement": string,
+  "context": string,
+  "risksDiscussed": string[],
+  "potentialCoverage": string[],
+  "openQuestions": string[]
+}
+
+Only include what was genuinely discussed. If a field has nothing meaningful, use an empty array or "Not yet established". Never invent details. Respond with ONLY the JSON object, no other text.`;
+
+  const transcript = messages.map(m => (m.role === "user" ? "Customer: " : "Advisor: ") + m.content).join("\n");
+
+  try {
+    const raw = await callClaudeOnce(summarySystemPrompt, transcript);
+    const match = raw.match(/\{[\s\S]*\}/);
+    const summary = JSON.parse(match ? match[0] : "{}");
+    body.innerHTML = renderSummary(summary);
+  } catch (err) {
+    body.innerHTML = `<p style="color:var(--red)">${escapeHtml(err.message || "Could not generate summary.")}</p>`;
+  }
+}
+
+function renderSummary(s) {
+  function field(label, value) {
+    return `<div class="summary-field"><div class="label">${label}</div><p>${escapeHtml(value || "Not yet established")}</p></div>`;
+  }
+  function list(label, items) {
+    const li = (items || []).map(i => `<li>${escapeHtml(i)}</li>`).join("");
+    return `<div class="summary-field"><div class="label">${label}</div>${li ? `<ul>${li}</ul>` : "<p>None yet</p>"}</div>`;
+  }
+  return field("What they're looking for", s.customerRequirement)
+    + field("Context shared", s.context)
+    + list("Risks discussed", s.risksDiscussed)
+    + list("Potential coverage areas", s.potentialCoverage)
+    + list("Still needs clarification", s.openQuestions);
+}
+
+// ============================================================
+// Wiring
+// ============================================================
+function openKeyModal() {
+  document.getElementById("key-input").value = getApiKey();
+  document.getElementById("key-overlay").classList.remove("hidden");
+}
+
+document.getElementById("gear-btn").addEventListener("click", openKeyModal);
+document.getElementById("key-save-btn").addEventListener("click", () => {
+  setApiKey(document.getElementById("key-input").value.trim());
+  document.getElementById("key-overlay").classList.add("hidden");
+});
+document.querySelectorAll(".modal-close").forEach(btn => {
+  btn.addEventListener("click", (e) => e.target.closest(".overlay").classList.add("hidden"));
+});
+
+document.getElementById("input-inner").addEventListener("submit", (e) => {
+  e.preventDefault();
+  sendMessage(document.getElementById("msg-input").value);
+});
+document.getElementById("msg-input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage(document.getElementById("msg-input").value);
+  }
+});
+document.getElementById("clear-btn").addEventListener("click", () => {
+  messages = [{ id: newId(), role: "assistant", content: "Hi, I'm your Hiscox Virtual Insurance Advisor. How can I help you today?", timestamp: Date.now() }];
+  renderAll();
+});
+
+// initial message
+messages.push({ id: "initial", role: "assistant", content: "Hi, I'm your Hiscox Virtual Insurance Advisor. How can I help you today?", timestamp: Date.now() });
+renderAll();
+if (!getApiKey()) openKeyModal();
+</script>
+</body>
+</html>
